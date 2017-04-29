@@ -3,20 +3,21 @@ package peopleapplication;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 import net.miginfocom.swing.MigLayout;
 
 
@@ -25,6 +26,7 @@ public class GUI extends JFrame{
 	
 	private int width;
 	private int height;
+	//static PeopleDatabase pd = null;
 	
 	// constructor
 	public GUI(){
@@ -40,11 +42,32 @@ public class GUI extends JFrame{
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		createMenubar();
 		createToolbar();
 		createTraceBody();
+	
 		
+	}
+	
+	private void createMenubar(){
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBackground(Color.RED);
 		
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		JMenuItem exitBtn = new JMenuItem("Exit");
+		exitBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		exitBtn.setToolTipText("Exit Program.");
+		exitBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				System.exit(0);
+			}
+		});
 		
+		fileMenu.add(exitBtn);
+
+		menuBar.add(fileMenu);
+		setJMenuBar(menuBar);
 	}
 	
 
@@ -79,9 +102,11 @@ public class GUI extends JFrame{
 		searchBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Tracing: " + searchField.getText());
-				PeopleDatabase pd = new PeopleDatabase();
-				pd.write("chicken wings on rice");
-				pd.close();
+				
+				ArrayList<String> addresses = new ArrayList<String>();
+				addresses.add("19 Teseo Court");
+				addresses.add("21 Jump Street");
+				Person customer = new Person("6479724299", addresses, 10);
 			}
 		});
 		
@@ -95,19 +120,21 @@ public class GUI extends JFrame{
 	
 	
 	private void createTraceBody(){
-		JPanel panel = new JPanel(new MigLayout("insets 0, gap 0, h 50%"));
+		JPanel panel = new JPanel(new MigLayout("insets 0, gap 10 10, h 50%"));
 		// set boundaries to be placed under the toolbar
 		panel.setBounds(0, 50, this.width, this.height);
-		panel.setBackground(Color.GREEN);
+		panel.setBackground(Color.WHITE);
+		panel.setBorder(BorderFactory.createTitledBorder("Trace Data"));
+		panel.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
 		add(panel, BorderLayout.CENTER);
 	}
 	
 	// main method to invoke GUI creation
 	public static void main(String []args){
-		
 		GUI window = new GUI();
 		window.setVisible(true);
+		//pd = new PeopleDatabase();
 
 		
 	}

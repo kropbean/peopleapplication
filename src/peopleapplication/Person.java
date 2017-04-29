@@ -6,6 +6,7 @@ public class Person {
 	private String phoneNumber = null;
 	private ArrayList<String> addresses = null;
 	private float rating = -1;
+	static PeopleDatabase pd = null;
 	
 	// constructor called when user searches for a person in the database
 	public Person(String phoneNumber){
@@ -17,10 +18,14 @@ public class Person {
 	
 	// overloaded constructor called when user creates a person
 	public Person(String phoneNumber, ArrayList<String> addresses, float rating){
+		pd = new PeopleDatabase();
 		this.phoneNumber = phoneNumber;
 		this.addresses = addresses;
 		this.rating = rating;
+		pd.addPerson(this.phoneNumber, this.addresses, this.rating);
+		
 	}
+	
 	
 	
 }
