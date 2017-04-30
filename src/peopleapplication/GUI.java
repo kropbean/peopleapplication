@@ -2,6 +2,7 @@ package peopleapplication;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -38,7 +40,7 @@ public class GUI extends JFrame{
 
 		// create the user interface
 		setTitle("People Application");
-		setSize(640, 480);
+		setSize(this.width, this.height);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -51,21 +53,143 @@ public class GUI extends JFrame{
 	
 	private void createMenubar(){
 		JMenuBar menuBar = new JMenuBar();
-		menuBar.setBackground(Color.RED);
+		menuBar.setLayout(new MigLayout("insets 0, gap 0"));
+		menuBar.setBackground(Color.GRAY);
+		menuBar.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		JMenuItem exitBtn = new JMenuItem("Exit");
-		exitBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		exitBtn.setToolTipText("Exit Program.");
-		exitBtn.addActionListener(new ActionListener(){
+		fileMenu.setBackground(Color.BLACK);
+		fileMenu.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		
+		
+		
+		
+		
+		// create add button
+		JMenuItem addBtn = new JMenuItem("Add");
+		addBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		addBtn.setToolTipText("Add a person to the database.");
+		addBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				System.exit(0);
+				// Create a dialogue to obtain user information
+				
+				JPanel dataEntryPanel = new JPanel(new MigLayout("insets 0, gap 0, al center center"));
+				
+				// phone number label and text field
+				JLabel phoneNumberLabel = new JLabel("Phone Number:");
+				phoneNumberLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				
+				JTextField phoneNumberField = new JTextField();
+				phoneNumberField.setColumns(20);
+				phoneNumberField.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				
+				
+				// address label and text field
+				JLabel addressLabel = new JLabel("Address:");
+				addressLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				
+				
+				JTextField addressField = new JTextField();
+				addressField.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				addressField.setColumns(20);
+				
+				// customer rating label and text field
+				JLabel ratingLabel = new JLabel("Customer Rating:");
+				ratingLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				
+				JTextField ratingField = new JTextField();
+				ratingField.setColumns(20);
+				ratingField.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				
+				// add button
+				JButton addBtn = new JButton("Add");
+				addBtn.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				addBtn.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e){
+						String personalData = "";
+						
+						if(phoneNumberField.getText().length() >= 10 && isPhoneNumber(phoneNumberField.getText())){
+							
+						}
+						
+						if(addressField.getText().length() > 0){
+						
+						}
+						
+						
+						
+					}
+					
+				});
+				
+				// cancel button
+				JButton cancelBtn = new JButton("Cancel");
+				cancelBtn.setFont(new Font("Tahoma", Font.PLAIN, 15));
+				cancelBtn.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e){
+						Container frame = cancelBtn.getParent();
+						do{
+							frame = frame.getParent();
+						}
+						while(!(frame instanceof JFrame));
+						((JFrame) frame).dispose();
+					}
+					
+				});
+					
+				dataEntryPanel.add(phoneNumberLabel, "al center center");
+				dataEntryPanel.add(phoneNumberField, "al center center, wrap");
+				dataEntryPanel.add(addressLabel, "al center center");
+				dataEntryPanel.add(addressField, "al center center, wrap");
+				dataEntryPanel.add(ratingLabel, "al center center");
+				dataEntryPanel.add(ratingField, "al center center, wrap");
+				dataEntryPanel.add(addBtn, "al center center");
+				dataEntryPanel.add(cancelBtn, "al center center, wrap");
+				
+				
+				// Get Screen Dimensions
+				Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+				int width = screen.width / 4;
+				int height = screen.height / 4;
+				
+				// Create pop up window
+				JFrame popUpDataEntry = new JFrame();
+				popUpDataEntry.setTitle("Add Customer");
+				popUpDataEntry.setSize(width, height);
+				popUpDataEntry.setLocationRelativeTo(null);
+				popUpDataEntry.setLayout(new BorderLayout());
+				popUpDataEntry.add(dataEntryPanel);
+				popUpDataEntry.setBackground(Color.WHITE);
+				popUpDataEntry.setVisible(true);
+				
+				
 			}
 		});
 		
+		
+		
+		
+		
+		// create exit button
+		JMenuItem exitBtn = new JMenuItem("Exit");
+		exitBtn.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		exitBtn.setToolTipText("Exit Program.");
+		
+		exitBtn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				Container frame = exitBtn.getParent();
+				do{
+					frame = frame.getParent();
+				}while(!(frame instanceof JFrame));
+				((JFrame) frame).dispose();
+			}
+		});
+		
+		
+		
+		fileMenu.add(addBtn);
 		fileMenu.add(exitBtn);
-
 		menuBar.add(fileMenu);
 		setJMenuBar(menuBar);
 	}
@@ -139,6 +263,15 @@ public class GUI extends JFrame{
 		
 	}
 	
+	
+	
+	
+	
+	// miscellaneous private methods
+	private boolean isPhoneNumber(String phoneNumber){
+		
+		return 
+	}
 	
 	
 }
