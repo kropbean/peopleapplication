@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
@@ -25,7 +26,7 @@ import net.miginfocom.swing.MigLayout;
 
 // Creates the user interface of the application
 public class GUI extends JFrame{
-	
+	static PeopleDatabase pd;
 	private int width;
 	private int height;
 	//static PeopleDatabase pd = null;
@@ -72,9 +73,7 @@ public class GUI extends JFrame{
 		addBtn.setToolTipText("Add a person to the database.");
 		addBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				// Create a dialogue to obtain user information
 				
-				JPanel dataEntryPanel = new JPanel(new MigLayout("insets 0, gap 0, al center center"));
 				
 				// phone number label and text field
 				JLabel phoneNumberLabel = new JLabel("Phone Number:");
@@ -107,15 +106,63 @@ public class GUI extends JFrame{
 				addBtn.setFont(new Font("Tahoma", Font.PLAIN, 15));
 				addBtn.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e){
-						String personalData = "";
 						
-						if(phoneNumberField.getText().length() >= 10 && isPhoneNumber(phoneNumberField.getText())){
+						if((formatPhoneNumber(phoneNumberField.getText()).length() >= 10) && (addressField.getText().length() > 0) && (ratingField.getText().length() >= 0 && isNumberBetween0to10(ratingField.getText()))){
+							// format phoneNumber
+							String phoneNumber = formatPhoneNumber(phoneNumberField.getText());
+									
+							// format addresses
+							ArrayList<String> addresses = new ArrayList<String>();
+							for(String address: addressField.getText().split(",")){
+								address = deleteSpacingPrefixes(address);
+								address = getReverse(deleteSpacingPrefixes(getReverse(address)));
+								addresses.add(address);
+							}
+							
+							// format rating
+							float rating = Float.valueOf(ratingField.getText());
+							
+							// adds a person to the database!
+							pd.addPerson(phoneNumber, addresses, rating);
+							
+							
+							// deploy success message!
+							JLabel message = new JLabel("Successfully created new user!");
+							message.setFont(new Font("Tahoma", Font.PLAIN, 15));
+							
+							JButton acceptBtn = new JButton("OK");
+							acceptBtn.setFont(new Font("Tahoma", Font.PLAIN, 15));
+							acceptBtn.addActionListener(new ActionListener(){
+								public void actionPerformed(ActionEvent e){
+									Container dialog = acceptBtn.getParent();
+									do
+									{
+										dialog = dialog.getParent();
+									}
+									while(!(dialog instanceof JDialog));
+									((JDialog) dialog).setVisible(false);
+									
+									
+								}
+							});
+							
+							JPanel alertPanel = new JPanel(new MigLayout("gap 0, insets 0, al center center"));
+							alertPanel.add(message, "wrap, al center, gapbottom 10");
+							alertPanel.add(acceptBtn, "wrap, al center");
+							
+							
+							JDialog alertBox = new JDialog();
+							int dWidth = 240;
+							int dHeight = 120;
+							alertBox.setBounds(width - dWidth/2, height - dHeight/2, dWidth, dHeight);
+							alertBox.setLayout(new BorderLayout());
+							alertBox.add(alertPanel, BorderLayout.CENTER);
+							alertBox.setVisible(true);
+							
 							
 						}
 						
-						if(addressField.getText().length() > 0){
-						
-						}
+					
 						
 						
 						
@@ -137,15 +184,19 @@ public class GUI extends JFrame{
 					}
 					
 				});
-					
-				dataEntryPanel.add(phoneNumberLabel, "al center center");
-				dataEntryPanel.add(phoneNumberField, "al center center, wrap");
-				dataEntryPanel.add(addressLabel, "al center center");
-				dataEntryPanel.add(addressField, "al center center, wrap");
-				dataEntryPanel.add(ratingLabel, "al center center");
-				dataEntryPanel.add(ratingField, "al center center, wrap");
-				dataEntryPanel.add(addBtn, "al center center");
-				dataEntryPanel.add(cancelBtn, "al center center, wrap");
+				
+				// create panel to hold "Enter phone number, address, and rating here" stuff
+				JPanel dataEntryPanel = new JPanel(new MigLayout("insets 0, gap 0, al center center"));
+				dataEntryPanel.add(phoneNumberLabel, "al left center, gap 10 2 20 5");
+				dataEntryPanel.add(phoneNumberField, "al center center, gap 0 10 20 5, wrap");
+				dataEntryPanel.add(addressLabel, "al left center, gap 10 2 0 5");
+				dataEntryPanel.add(addressField, "al center center, gap 0 10 0 5, wrap");
+				dataEntryPanel.add(ratingLabel, "al left center, gap 10 2 0 5");
+				dataEntryPanel.add(ratingField, "al center center, gap 0 10 0 5, wrap");
+				
+				JPanel buttonPanel = new JPanel(new MigLayout("insets 0, gap 0, al center center"));
+				buttonPanel.add(addBtn, "al center center, gapright 50, gapbottom 20");
+				buttonPanel.add(cancelBtn, "al center center, gapbottom 20, wrap");
 				
 				
 				// Get Screen Dimensions
@@ -159,7 +210,8 @@ public class GUI extends JFrame{
 				popUpDataEntry.setSize(width, height);
 				popUpDataEntry.setLocationRelativeTo(null);
 				popUpDataEntry.setLayout(new BorderLayout());
-				popUpDataEntry.add(dataEntryPanel);
+				popUpDataEntry.add(dataEntryPanel, BorderLayout.CENTER);
+				popUpDataEntry.add(buttonPanel, BorderLayout.AFTER_LAST_LINE);
 				popUpDataEntry.setBackground(Color.WHITE);
 				popUpDataEntry.setVisible(true);
 				
@@ -227,10 +279,7 @@ public class GUI extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Tracing: " + searchField.getText());
 				
-				ArrayList<String> addresses = new ArrayList<String>();
-				addresses.add("19 Teseo Court");
-				addresses.add("21 Jump Street");
-				Person customer = new Person("6479724299", addresses, 10);
+				
 			}
 		});
 		
@@ -258,8 +307,7 @@ public class GUI extends JFrame{
 	public static void main(String []args){
 		GUI window = new GUI();
 		window.setVisible(true);
-		//pd = new PeopleDatabase();
-
+		pd = new PeopleDatabase();
 		
 	}
 	
@@ -269,9 +317,59 @@ public class GUI extends JFrame{
 	
 	// miscellaneous private methods
 	private boolean isPhoneNumber(String phoneNumber){
-		
-		return 
+		phoneNumber = formatPhoneNumber(phoneNumber);
+		for(char number: phoneNumber.toCharArray()){
+			if(!Character.isDigit(number)){
+				return false;
+			}
+		}
+		return true; 
 	}
 	
+	
+	private boolean isNumberBetween0to10(String inputNumber){
+		// make sure all information given is numeric
+		for(char number: inputNumber.toCharArray()){
+			if(!Character.isDigit(number) && number != '.'){
+				return false;
+			}
+		}
+		
+		// return false if value exceeds 10 or is negative.
+		if(Float.valueOf(inputNumber) < 0 || Float.valueOf(inputNumber) > 10){
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private String deleteSpacingPrefixes(String userInput){
+		
+		if (userInput.charAt(0) == ' '){
+			return deleteSpacingPrefixes(userInput.substring(1, userInput.length()));
+		} 
+		else{
+			return userInput;
+		}
+	}
+	
+	private String getReverse(String userInput){
+		if((null) == userInput || userInput.length() <= 1){
+			return userInput;
+		}
+		
+		return getReverse(userInput.substring(1)) + userInput.charAt(0);
+		
+	}
+	
+	private String formatPhoneNumber(String phoneNumber){
+		String formatted = "";
+		for(char number: phoneNumber.toCharArray()){
+			if((int) number >= 48 && (int) number <= 57){
+				formatted = formatted + Character.toString(number);
+			}
+		}
+		return formatted;
+	}
 	
 }
