@@ -10,6 +10,8 @@ public class PeopleDatabase {
 	private String filePath = "src\\people.txt";
 	private FileInputStream in = null;
 	private FileOutputStream out = null;
+	static ArrayList<String> peopleData = new ArrayList<String>();
+	
 	
 	// database constructor: creates IO files if not already created.
 	public PeopleDatabase(){
@@ -48,12 +50,12 @@ public class PeopleDatabase {
 		String text = "";
 		
 		text += phoneNumber;
-		text += "*";
+		text += "|";
 		for(String address : addresses){
 			text += address + "#";
 		}
 		text = text.substring(0, text.length() - 1);
-		text += "*";
+		text += "|";
 		text += rating;
 		text += "\n";
 		
@@ -61,9 +63,65 @@ public class PeopleDatabase {
 	}
 	
 	
-	public void read(){
+	public void importDatabase(){
+		try{
+			char c;
+			int i = 0;
+			String message = "";
+			while((i = this.in.read()) != -1){
+				c = (char)i;
+				if(c == '\n'){
+					peopleData.add(message);
+					message = "";
+				}
+				else{
+					message += String.valueOf(c);
+				}
+			}
+				
+		}
+		catch(Exception e){
+			System.out.println("Failure when reading file: " + e);
+		};
+	}
+	
+	public ArrayList<Integer> searchByPhoneNumber(String phoneNumber){
+		ArrayList<Integer> locations = new ArrayList<Integer>();
+		int start = 0;
+		int end = phoneNumber.length();
+		int index = 0;
+		
+		for (String databasePhoneNumber : importPhoneNumbers()){
+			for (int i = 0; i <= databasePhoneNumber.length() - phoneNumber.length(); i++){
+				
+				if(databasePhoneNumber.substring(start, end).equals(phoneNumber)){
+					locations.add(index);
+					break;
+				}
+				
+				start += 1;
+				end += 1;
+			}
+			start = 0;
+			end = phoneNumber.length();
+			index += 1;
+			
+		}
+		return locations;
+		
 		
 	}
+	
+	private ArrayList<String> importPhoneNumbers(){
+		ArrayList<String> importedPhoneNumbers = new ArrayList<String>();
+		for (String user : peopleData){
+			
+			importedPhoneNumbers.add(user.split("[|]")[0]);
+			
+		}
+		return importedPhoneNumbers;
+	}
+	
 	
 	
 	// manual close destructor

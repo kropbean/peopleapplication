@@ -8,7 +8,7 @@ public class Person {
 	private float rating = -1;
 	static PeopleDatabase pd = null;
 	
-	// constructor called when user searches for a person in the database
+	// constructor called when user intermediately searches for a person
 	public Person(String phoneNumber){
 		this.phoneNumber = phoneNumber;
 		

@@ -161,6 +161,55 @@ public class GUI extends JFrame{
 							
 							
 						}
+						else{
+							// Error handling
+							
+							ArrayList<JLabel> errorMessages = new ArrayList<JLabel>();
+							
+							if(formatPhoneNumber(phoneNumberField.getText()).length() < 10){
+								errorMessages.add(createErrorMessage("Invalid phone number!"));
+							}
+							
+							if(addressField.getText().length() <= 0){
+								errorMessages.add(createErrorMessage("Invalid address!"));
+							}
+							
+							if(ratingField.getText().length() < 0){
+								errorMessages.add(createErrorMessage("Invalid rating value!"));
+							}
+							
+							if(!isNumberBetween0to10(ratingField.getText())){
+								errorMessages.add(createErrorMessage("Rating value must be a value between 0-10."));
+							}
+							
+							
+							JPanel errorPanel = new JPanel(new MigLayout("gap 0, insets 0, al center center"));
+							
+							if(errorMessages.size() >= 1){
+								errorPanel.add(createErrorMessageBold("Invalid entry:"), "wrap, al center center");
+								for(JLabel messageSegment : errorMessages){
+									errorPanel.add(messageSegment, "wrap, al center center");
+								}
+							}
+							else{
+								errorPanel.add(createErrorMessage("An Error has occured."), "wrap, al center center");
+							}
+							
+							
+							
+							
+							
+								
+							JDialog errorBox = new JDialog();
+							int dWidth = 400;
+							int dHeight = 120;
+							errorBox.setBounds(width - dWidth/2, height - dHeight/2, dWidth, dHeight);
+							errorBox.setLayout(new BorderLayout());
+							errorBox.add(errorPanel, BorderLayout.CENTER);
+							errorBox.setVisible(true);
+							
+							
+						}
 						
 					
 						
@@ -278,6 +327,15 @@ public class GUI extends JFrame{
 		searchBtn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Tracing: " + searchField.getText());
+				pd.importDatabase();
+				
+				ArrayList<Integer> locations = pd.searchByPhoneNumber(searchField.getText());
+				for(int location : locations){
+					System.out.println("Found at location: " + location);
+				}
+				
+				
+				
 				
 				
 			}
@@ -328,15 +386,22 @@ public class GUI extends JFrame{
 	
 	
 	private boolean isNumberBetween0to10(String inputNumber){
-		// make sure all information given is numeric
-		for(char number: inputNumber.toCharArray()){
-			if(!Character.isDigit(number) && number != '.'){
+		if(inputNumber.length() > 0){
+			// make sure all information given is numeric
+			for(char number: inputNumber.toCharArray()){
+				if(!Character.isDigit(number) && number != '.'){
+					return false;
+				}
+			}
+			
+			// return false if value exceeds 10 or is negative.
+			if(Float.valueOf(inputNumber) < 0 || Float.valueOf(inputNumber) > 10){
 				return false;
 			}
+			
+			
 		}
-		
-		// return false if value exceeds 10 or is negative.
-		if(Float.valueOf(inputNumber) < 0 || Float.valueOf(inputNumber) > 10){
+		else{
 			return false;
 		}
 		
@@ -370,6 +435,21 @@ public class GUI extends JFrame{
 			}
 		}
 		return formatted;
+	}
+	
+	
+	private JLabel createErrorMessage(String message){
+		JLabel error = new JLabel(message);
+		error.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		error.setForeground(Color.RED);
+		return error;
+	}
+	
+	private JLabel createErrorMessageBold(String message){
+		JLabel error = new JLabel(message);
+		error.setFont(new Font("Tahoma", Font.BOLD, 15));
+		error.setForeground(Color.RED);
+		return error;
 	}
 	
 }
