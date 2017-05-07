@@ -122,6 +122,49 @@ public class PeopleDatabase {
 		return importedPhoneNumbers;
 	}
 	
+	public ArrayList<String> getLine(int location){
+		ArrayList<String> data = new ArrayList<String>();
+		
+		try{
+			this.in.reset();
+			int i = 0;
+			char c;
+			int skippedLines = 0;
+			String message = "";
+			while((i = this.in.read()) != -1){
+				c = (char)i;
+				
+				if(c == '\n' && skippedLines != location){
+					skippedLines += 1;
+				}
+				
+				
+				if(skippedLines == location){
+					if(c == '\n'){
+						data.add(message.split("[|]")[0]);
+						data.add(message.split("[|]")[1]);
+						data.add(message.split("[|]")[2]);
+						message = "";
+						break;
+					}
+					else{
+						message += String.valueOf(c);
+					}
+					
+					
+					
+				}
+			}
+			
+			
+		}
+		catch(Exception e){
+			System.out.println("Failed to search for person data (using location): " + e);
+		}
+		
+		return data;
+		
+	}
 	
 	
 	// manual close destructor

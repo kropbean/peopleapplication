@@ -29,6 +29,7 @@ public class GUI extends JFrame{
 	static PeopleDatabase pd;
 	private int width;
 	private int height;
+	static JPanel traceBody;
 	//static PeopleDatabase pd = null;
 	
 	// constructor
@@ -332,6 +333,7 @@ public class GUI extends JFrame{
 				ArrayList<Integer> locations = pd.searchByPhoneNumber(searchField.getText());
 				for(int location : locations){
 					System.out.println("Found at location: " + location);
+					updateTraceBody(pd.getLine(location));
 				}
 				
 				
@@ -351,14 +353,30 @@ public class GUI extends JFrame{
 	
 	
 	private void createTraceBody(){
-		JPanel panel = new JPanel(new MigLayout("insets 0, gap 10 10, h 50%"));
+		traceBody = new JPanel(new MigLayout("insets 0, gap 10 10, h 50%"));
 		// set boundaries to be placed under the toolbar
-		panel.setBounds(0, 50, this.width, this.height);
-		panel.setBackground(Color.WHITE);
-		panel.setBorder(BorderFactory.createTitledBorder("Trace Data"));
-		panel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		traceBody.setBounds(0, 50, this.width, this.height);
+		traceBody.setBackground(Color.WHITE);
+		traceBody.setBorder(BorderFactory.createTitledBorder("Trace Data"));
+		traceBody.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
-		add(panel, BorderLayout.CENTER);
+		add(traceBody, BorderLayout.CENTER);
+	}
+	
+	private void updateTraceBody(ArrayList<String> data){
+		JPanel personDataBlock = new JPanel(new MigLayout("gap 0, insets 0, al center center"));
+		for(String dataSegment : data){
+			JLabel userInfo = new JLabel(dataSegment);
+			userInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			personDataBlock.add(userInfo, "wrap, al center center");
+		}
+		
+		personDataBlock.setBounds(0, 0, this.width, 200);
+		personDataBlock.setBackground(Color.DARK_GRAY);
+		
+		traceBody.add(personDataBlock, "wrap");
+		
+		
 	}
 	
 	// main method to invoke GUI creation
