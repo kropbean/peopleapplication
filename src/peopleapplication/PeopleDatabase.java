@@ -1,14 +1,21 @@
 package peopleapplication;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 public class PeopleDatabase {
 	private String filePath = "src\\people.txt";
 	private FileInputStream in = null;
+	
 	private FileOutputStream out = null;
 	static ArrayList<String> peopleData = new ArrayList<String>();
 	
@@ -23,6 +30,9 @@ public class PeopleDatabase {
 				// true to allow for file appending instead of overwriting.
 				this.out = new FileOutputStream(this.filePath, true);		
 				this.in = new FileInputStream(this.filePath);
+				
+				
+				
 			}
 			
 		}
@@ -125,53 +135,22 @@ public class PeopleDatabase {
 	public ArrayList<String> getLine(int location){
 		ArrayList<String> data = new ArrayList<String>();
 		
-		try{
-			this.in.reset();
-			int i = 0;
-			char c;
-			int skippedLines = 0;
-			String message = "";
-			while((i = this.in.read()) != -1){
-				c = (char)i;
-				
-				if(c == '\n' && skippedLines != location){
-					skippedLines += 1;
-				}
-				
-				
-				if(skippedLines == location){
-					if(c == '\n'){
-						data.add(message.split("[|]")[0]);
-						data.add(message.split("[|]")[1]);
-						data.add(message.split("[|]")[2]);
-						message = "";
-						break;
-					}
-					else{
-						message += String.valueOf(c);
-					}
-					
-					
-					
-				}
-			}
-			
-			
-		}
-		catch(Exception e){
-			System.out.println("Failed to search for person data (using location): " + e);
+		for(int i = 0; i < 3; i++){
+			data.add(peopleData.get(location).split("[|]")[i]);
 		}
 		
 		return data;
-		
+
 	}
 	
+
 	
 	// manual close destructor
 	public void close(){
 		try{
-			this.in.close();
+			
 			this.out.close();
+			this.in.close();
 		}
 		catch(Exception e){
 			System.out.println("Error on close(): " + e);

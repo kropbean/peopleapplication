@@ -20,7 +20,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.ScrollPaneLayout;
+
 import net.miginfocom.swing.MigLayout;
 
 
@@ -30,7 +34,8 @@ public class GUI extends JFrame{
 	private int width;
 	private int height;
 	static JPanel traceBody;
-	//static PeopleDatabase pd = null;
+	static int traceBodyElements = 0;
+	
 	
 	// constructor
 	public GUI(){
@@ -108,7 +113,7 @@ public class GUI extends JFrame{
 				addBtn.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent e){
 						
-						if((formatPhoneNumber(phoneNumberField.getText()).length() >= 10) && (addressField.getText().length() > 0) && (ratingField.getText().length() >= 0 && isNumberBetween0to10(ratingField.getText()))){
+						if((formatPhoneNumber(phoneNumberField.getText()).length() == 10) && (addressField.getText().length() > 0) && (ratingField.getText().length() >= 0 && isNumberBetween0to10(ratingField.getText()))){
 							// format phoneNumber
 							String phoneNumber = formatPhoneNumber(phoneNumberField.getText());
 									
@@ -167,8 +172,8 @@ public class GUI extends JFrame{
 							
 							ArrayList<JLabel> errorMessages = new ArrayList<JLabel>();
 							
-							if(formatPhoneNumber(phoneNumberField.getText()).length() < 10){
-								errorMessages.add(createErrorMessage("Invalid phone number!"));
+							if(!(formatPhoneNumber(phoneNumberField.getText()).length() == 10)){
+								errorMessages.add(createErrorMessage("Phone number must be 10 digits!"));
 							}
 							
 							if(addressField.getText().length() <= 0){
@@ -329,11 +334,19 @@ public class GUI extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				System.out.println("Tracing: " + searchField.getText());
 				pd.importDatabase();
+				traceBody.removeAll();
 				
 				ArrayList<Integer> locations = pd.searchByPhoneNumber(searchField.getText());
+				
+				
+				
+				
+				// loop through each location, and print each to screen
+				int index = 0;
 				for(int location : locations){
 					System.out.println("Found at location: " + location);
-					updateTraceBody(pd.getLine(location));
+					updateTraceBody(pd.getLine(location), index);
+					index++;
 				}
 				
 				
@@ -353,29 +366,157 @@ public class GUI extends JFrame{
 	
 	
 	private void createTraceBody(){
-		traceBody = new JPanel(new MigLayout("insets 0, gap 10 10, h 50%"));
-		// set boundaries to be placed under the toolbar
-		traceBody.setBounds(0, 50, this.width, this.height);
-		traceBody.setBackground(Color.WHITE);
-		traceBody.setBorder(BorderFactory.createTitledBorder("Trace Data"));
+		
+		// set boundaries to be placed under the toolbar	
+		
+		traceBody = new JPanel(new MigLayout("gap 0, insets 0"));
 		traceBody.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
-		add(traceBody, BorderLayout.CENTER);
+		JPanel traceBodyInnerBack = new JPanel(new BorderLayout());
+		traceBodyInnerBack.add(traceBody, BorderLayout.CENTER);
+		traceBodyInnerBack.setBackground(Color.PINK);
+		
+		JScrollPane traceScrollPane = new JScrollPane(traceBodyInnerBack);
+		traceScrollPane.setBackground(Color.PINK);
+		//traceScrollPane.setPreferredSize(new Dimension(this.width - 100, this.height - 200));
+		traceScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		add(traceScrollPane, BorderLayout.CENTER);
 	}
 	
-	private void updateTraceBody(ArrayList<String> data){
-		JPanel personDataBlock = new JPanel(new MigLayout("gap 0, insets 0, al center center"));
+	private void updateTraceBody(ArrayList<String> data, int personIndex){
+		int boxHeight = 1000;
+		
+		JPanel personDataBlock = new JPanel(new MigLayout("gap 0, insets 0"));
+		int i = 0; 
 		for(String dataSegment : data){
-			JLabel userInfo = new JLabel(dataSegment);
-			userInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
-			personDataBlock.add(userInfo, "wrap, al center center");
+			JPanel userRowInfo = new JPanel(new MigLayout("gap 0, insets 0"));
+			userRowInfo.setBackground(null);
+			JLabel userInfo = new JLabel();
+			JLabel userHeader = new JLabel();
+		
+			
+			if(traceBodyElements % 2 == 0){
+				userInfo.setForeground(Color.WHITE);
+				userHeader.setForeground(Color.WHITE);
+			}
+			
+			// default font size
+			userInfo.setFont(new Font("Tahoma", Font.PLAIN, 20));
+			
+			// phone number: left aligned
+			if(i == 0){
+				dataSegment = hyphenatePhoneNumber(dataSegment);
+				userInfo.setText(dataSegment);
+				userInfo.setFont(new Font("Tahoma", Font.BOLD, 40));
+				personDataBlock.add(userInfo, "wrap, al left center");
+				
+				
+			}
+			// address
+			else if(i == 1){
+				
+				userHeader.setText("Home: ");
+				userHeader.setFont(new Font("Tahoma", Font.PLAIN, 25));
+				
+				
+				userInfo.setText(dataSegment);
+				userInfo.setFont(new Font("Tahoma", Font.PLAIN, 30));
+				
+				userRowInfo.add(userHeader);
+				userRowInfo.add(userInfo, "wrap");
+				personDataBlock.add(userRowInfo, "wrap, al left center");
+			}
+			// rating: centered
+			else{
+				userHeader.setText("Rating: ");
+				userHeader.setFont(new Font("Tahoma", Font.PLAIN, 25));
+				
+				
+				userInfo.setText(dataSegment);
+				userInfo.setFont(new Font("Tahoma", Font.PLAIN, 30));
+				
+				userRowInfo.add(userHeader);
+				userRowInfo.add(userInfo);
+		
+				personDataBlock.add(userRowInfo, "wrap, al left center");;
+			}
+			
+			
+			
+			i++;
+			
 		}
 		
-		personDataBlock.setBounds(0, 0, this.width, 200);
-		personDataBlock.setBackground(Color.DARK_GRAY);
 		
-		traceBody.add(personDataBlock, "wrap");
+		// set size of the person block
+		personDataBlock.setBounds(0, traceBodyElements * boxHeight, this.width, boxHeight);
+		if(traceBodyElements % 2 == 0){
+			personDataBlock.setBackground(Color.DARK_GRAY);
+			
+		}
+		else{
+			personDataBlock.setBackground(Color.PINK);
+		}
 		
+		
+		//create the button interface
+		JPanel buttonPanel = new JPanel(new MigLayout("gap 0, insets 0"));
+		JButton delete = new JButton();
+		
+				
+		delete.setText("Delete");
+		delete.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				System.out.println(String.format("location %d wants to be destroyed", personIndex));
+				
+			
+				JDialog confirmDestroy = new JDialog();
+				confirmDestroy.setLayout(new BorderLayout());
+				int dWidth = 480;
+				int dHeight = 120;
+				confirmDestroy.setBounds(width - dWidth/2, height - dHeight/2, dWidth, dHeight);
+
+				// confirm panel declaration
+				JPanel confirmPanel = new JPanel(new MigLayout("gap 0, insets 0, al center center"));
+				
+				// confirm message (are you sure you want to delete?)
+				JLabel confirmMessage = new JLabel(String.format("Are you sure you want to delete the person %s?", hyphenatePhoneNumber(data.get(0))));
+				confirmMessage.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			
+				// yes / no buttons
+				JButton yesBtn = new JButton("YES");
+				JButton noBtn = new JButton("NO");
+				
+				// yes / no button panel
+				JPanel decisionBtnPanel = new JPanel(new MigLayout("gap 0, insets 0"));
+				decisionBtnPanel.add(yesBtn, "gap 0 10 0 0");
+				decisionBtnPanel.add(noBtn, "wrap");
+				
+				
+				
+				confirmPanel.add(confirmMessage, "wrap, al center center");
+				confirmPanel.add(decisionBtnPanel, "wrap, al center center, gap 0 0 10 0");
+				
+				
+				confirmDestroy.add(confirmPanel, BorderLayout.CENTER);
+				confirmDestroy.setVisible(true);
+				
+			}
+			
+			
+		});		
+		
+		buttonPanel.add(delete);
+				
+		personDataBlock.add(buttonPanel, "wrap, al left center");
+				
+			
+		
+		traceBody.add(personDataBlock, "wrap, w 100%, al center center");
+		traceBody.revalidate();
+		traceBody.repaint();
+		traceBodyElements += 1;
 		
 	}
 	
@@ -415,9 +556,7 @@ public class GUI extends JFrame{
 			// return false if value exceeds 10 or is negative.
 			if(Float.valueOf(inputNumber) < 0 || Float.valueOf(inputNumber) > 10){
 				return false;
-			}
-			
-			
+			}	
 		}
 		else{
 			return false;
@@ -453,6 +592,11 @@ public class GUI extends JFrame{
 			}
 		}
 		return formatted;
+	}
+	
+	private String hyphenatePhoneNumber(String phoneNumber){	
+		return String.format("%s-%s-%s", phoneNumber.substring(0, 3), phoneNumber.substring(3, 6), phoneNumber.substring(6));
+				
 	}
 	
 	
